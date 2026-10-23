@@ -116,8 +116,8 @@ function render() {
 }
 
 function renderHeader() {
-  const name = pref.get('name', '');
-  $('#hello').textContent = `Hola${name ? ', ' + name : ''} 👋`;
+  const h = new Date().getHours();
+  $('#hello').textContent = h >= 5 && h < 12 ? 'Buenos días ☀️' : h >= 12 && h < 20 ? 'Buenas tardes 🌤️' : 'Buenas noches 🌙';
   const t = todayKey();
   const all = store.all();
   const today = all.filter(i => i.type === 'task' && !i.done && i.date === t).length;
@@ -172,7 +172,7 @@ function monthHTML() {
   const start = startOfWeek(first);
   const days = new Date(c.getFullYear(), c.getMonth() + 1, 0).getDate();
   const weeks = Math.ceil(((first.getDay() + 6) % 7 + days) / 7);
-  const max = 3;
+  const max = innerHeight < 820 || weeks === 6 ? 2 : 3; // que entre todo en pantalla sin scroll
   const t = todayKey();
   let cells = '';
   for (let i = 0; i < weeks * 7; i++) {
@@ -251,10 +251,6 @@ function notesHTML() {
 
 function settingsHTML() {
   return `<div class="settings">
-    <section class="card-s">
-      <h3>Tu nombre</h3>
-      <input id="s-name" class="input" value="${esc(pref.get('name', ''))}" placeholder="¿Cómo te llamás?" maxlength="40">
-    </section>
     <section class="card-s" id="cloud">${cloudHTML()}</section>
     <section class="card-s">
       <h3>Respaldo</h3>
@@ -290,7 +286,9 @@ function renderMini() {
   const map = itemsByDate();
   const t = todayKey();
   let cells = '';
-  for (let i = 0; i < 42; i++) {
+  const days = new Date(c.getFullYear(), c.getMonth() + 1, 0).getDate();
+  const total = Math.ceil(((new Date(c.getFullYear(), c.getMonth(), 1).getDay() + 6) % 7 + days) / 7) * 7;
+  for (let i = 0; i < total; i++) {
     const d = addDays(start, i), k = ymd(d);
     const cls = ['md', d.getMonth() !== c.getMonth() && 'out', k === t && 'today', k === state.selected && 'sel', map.has(k) && 'has'].filter(Boolean).join(' ');
     cells += `<button class="${cls}" data-goto="${k}">${d.getDate()}</button>`;
@@ -310,7 +308,7 @@ function formHTML(editing) {
       <label><input type="radio" name="type" value="note"><span>${ICON.note}Nota</span></label>
     </div>
     <label class="field"><span>Título</span><input name="title" maxlength="140" placeholder="¿Qué hay que hacer?"></label>
-    <label class="field"><span>Detalle</span><textarea name="notes" rows="3" placeholder="Notas, links, lo que quieras…"></textarea></label>
+    <label class="field"><span>Detalle</span><textarea name="notes" rows="2" placeholder="Notas, links, lo que quieras…"></textarea></label>
     <label class="field"><span>Fecha</span><input type="date" name="date"></label>
     <div class="two">
       <label class="field"><span>Desde</span><input type="time" name="start"></label>
@@ -615,7 +613,6 @@ document.addEventListener('change', e => {
 document.addEventListener('input', e => {
   const t = e.target;
   if (t.id === 'search') { state.query = t.value; if (state.page === 'settings') state.page = 'calendar'; render(); }
-  if (t.id === 's-name') { pref.set('name', t.value.trim()); renderHeader(); }
   if (t.name === 'title') t.classList.remove('err');
 });
 
@@ -628,6 +625,7 @@ matchMedia('(max-width: 1199px)').addEventListener('change', () => {
   render();
 });
 matchMedia('(max-width: 760px)').addEventListener('change', render);
+matchMedia('(max-height: 819px)').addEventListener('change', () => { if (state.page === 'calendar') render(); });
 
 store.onChange(() => {
   if (state.page === 'settings') {

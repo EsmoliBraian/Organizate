@@ -40,6 +40,7 @@
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
+  display: flow-root;
   margin: 0;
   background: var(--bg);
   color: var(--text);
@@ -175,12 +176,12 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 
 /* ---------- mes ---------- */
 
-.month { flex: 1 0 auto; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.month { flex: 1; min-height: 0; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
 .dow { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); background: var(--soft); }
 .dow span { padding: 10px 4px; text-align: center; font-size: 12px; font-weight: 600; color: var(--muted); }
-.grid { flex: 1; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-template-rows: repeat(var(--weeks), minmax(84px, auto)); }
+.grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-template-rows: repeat(var(--weeks), minmax(0, 1fr)); }
 .cell {
-  display: flex; flex-direction: column; gap: 4px; min-width: 0;
+  display: flex; flex-direction: column; gap: 4px; min-width: 0; min-height: 0; overflow: hidden;
   padding: 6px; cursor: pointer;
   border-top: 1px solid var(--line); border-left: 1px solid var(--line);
   transition: background .12s;
@@ -263,8 +264,8 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 
 /* ---------- semana y día ---------- */
 
-.week { flex: 1; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
-.wcol { display: flex; flex-direction: column; min-height: 320px; min-width: 0; border-left: 1px solid var(--line); cursor: pointer; }
+.week { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+.wcol { display: flex; flex-direction: column; min-height: 0; min-width: 0; border-left: 1px solid var(--line); cursor: pointer; }
 .wcol:first-child { border-left: 0; }
 .wcol:hover { background: color-mix(in srgb, var(--primary) 3%, var(--card)); }
 .whead { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 4px; background: var(--soft); }
@@ -272,7 +273,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .whead b { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; font-size: 17px; font-weight: 600; }
 .wcol.today .whead b { background: var(--primary); color: #fff; }
 .wcol.sel .whead { box-shadow: inset 0 -2px var(--primary); }
-.wcol .list { flex: 1; padding: 8px 6px; }
+.wcol .list { flex: 1; padding: 8px 6px; overflow-y: auto; scrollbar-width: none; }
 .wcol .chip { align-items: flex-start; flex-wrap: wrap; }
 .wcol .chip .t { white-space: normal; overflow-wrap: anywhere; }
 .wcol .chip .tm { width: 100%; padding-left: 22px; }
@@ -317,7 +318,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .btns label { cursor: pointer; }
 
 .input, .field input, .field textarea {
-  width: 100%; padding: 10px 12px;
+  width: 100%; padding: 8px 12px;
   background: var(--card); border: 1.5px solid var(--line); border-radius: 12px;
   outline: 0; transition: border-color .15s;
 }
@@ -326,8 +327,9 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 
 /* ---------- panel lateral ---------- */
 
-.panel { display: flex; flex-direction: column; gap: 22px; padding: 26px 22px; overflow: auto; }
-.form { display: flex; flex-direction: column; gap: 12px; }
+.panel { display: flex; flex-direction: column; gap: 16px; padding: 22px 20px; overflow: auto; scrollbar-width: none; }
+.panel::-webkit-scrollbar { display: none; }
+.form { display: flex; flex-direction: column; gap: 10px; }
 .form-head { display: flex; align-items: center; justify-content: space-between; }
 .form-head h3 { margin: 0; font-size: 17px; }
 .form .close { display: none; }
@@ -335,7 +337,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .seg-full label { flex: 1; }
 .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .field > span { font-size: 12px; font-weight: 500; color: var(--muted); }
-.field textarea { resize: vertical; min-height: 72px; }
+.field textarea { resize: vertical; min-height: 56px; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
 .sw { position: relative; cursor: pointer; }
@@ -359,12 +361,13 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .actions { display: flex; gap: 8px; margin-top: 4px; }
 .actions .btn.primary { flex: 1; }
 
-.mini { background: var(--card); border-radius: 20px; padding: 16px; }
-.mini-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.mini { background: var(--card); border-radius: 20px; padding: 12px 14px; }
+@media (min-width: 1200px) and (max-height: 780px) { .mini { display: none; } }
+.mini-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
 .mini-head div { display: flex; gap: 6px; }
 .mini-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
 .mini-grid .h { padding: 4px 0; font-size: 11px; font-weight: 600; color: var(--muted); }
-.md { position: relative; aspect-ratio: 1; border-radius: 50%; font-size: 12px; }
+.md { position: relative; height: 28px; border-radius: 50%; font-size: 12px; }
 .md:hover { background: var(--primary-soft); }
 .md.out { color: var(--muted); opacity: .55; }
 .md.today { color: var(--primary); font-weight: 700; }
@@ -410,6 +413,9 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
   .mini { display: none; }
   .fab { display: grid; }
   .agenda { display: block; margin-top: 18px; }
+  .month { flex: none; }
+  .grid { grid-template-rows: repeat(var(--weeks), minmax(84px, auto)); }
+  .week { min-height: 420px; }
 }
 
 /* ---------- celular ---------- */
