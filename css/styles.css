@@ -331,6 +331,8 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .ev.short { flex-direction: row; align-items: center; gap: 8px; padding: 3px 8px; }
 .ev.short .ev-t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ev.short .ev-n { display: none; }
+.ev.short .ev-top { flex: 1; min-width: 0; }
+.ev.short .ev-tm { white-space: nowrap; flex: none; }
 .now { position: absolute; left: 0; right: 0; z-index: 3; border-top: 1.5px dashed var(--text); pointer-events: none; }
 .now span { position: absolute; left: 2px; top: -10px; padding: 1px 6px; border-radius: 6px; background: var(--text); color: #fff; font-size: 10px; font-weight: 600; }
 
