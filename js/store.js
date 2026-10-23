@@ -60,15 +60,33 @@ function enqueue(op) {
   flush();
 }
 
-const toRow = it => ({
-  id: it.id, user_id: user.id, type: it.type, title: it.title, notes: it.notes || '',
-  date: it.date || null, start_time: it.start || null, end_time: it.end || null,
-  color: it.color, done: !!it.done, updated_at: it.updatedAt,
-});
+// Si la tabla todavía no tiene las columnas status/created_at (ver supabase.sql), se sube sin ellas.
+let legacySchema = false;
+const toRow = it => {
+  const row = {
+    id: it.id, user_id: user.id, type: it.type, title: it.title, notes: it.notes || '',
+    date: it.date || null, start_time: it.start || null, end_time: it.end || null,
+    color: it.color, done: !!it.done, updated_at: it.updatedAt,
+  };
+  if (!legacySchema) { row.status = it.status || (it.done ? 'done' : 'todo'); row.created_at = it.createdAt || it.updatedAt; }
+  return row;
+};
 const fromRow = r => ({
   id: r.id, type: r.type, title: r.title, notes: r.notes || '', date: r.date || '',
-  start: r.start_time || '', end: r.end_time || '', color: r.color, done: r.done, updatedAt: r.updated_at,
+  start: r.start_time || '', end: r.end_time || '', color: r.color, done: r.done,
+  status: r.status || (r.done ? 'done' : 'todo'),
+  createdAt: r.created_at || r.updated_at, updatedAt: r.updated_at,
 });
+const missingColumn = e => e && (e.code === 'PGRST204' || e.code === '42703');
+
+async function upsertRow(item) {
+  let { error } = await sb.from('items').upsert(toRow(item));
+  if (missingColumn(error) && !legacySchema) {
+    legacySchema = true;
+    ({ error } = await sb.from('items').upsert(toRow(item)));
+  }
+  return { error };
+}
 
 let flushing = null;
 function flush() {
@@ -80,7 +98,7 @@ function flush() {
       while (queue.length) {
         const op = queue[0];
         const { error } = op.op === 'upsert'
-          ? await sb.from('items').upsert(toRow(op.item))
+          ? await upsertRow(op.item)
           : await sb.from('items').delete().eq('id', op.id);
         if (error) throw error;
         queue = queue.filter(q => q !== op);

@@ -15,6 +15,10 @@ create table if not exists public.items (
   updated_at  timestamptz not null default now()
 );
 
+-- Tablero de tareas (Por hacer / En proceso / Hecha) y fecha de creación.
+alter table public.items add column if not exists status text not null default 'todo';
+alter table public.items add column if not exists created_at timestamptz not null default now();
+
 create index if not exists items_user_idx on public.items (user_id);
 
 alter table public.items enable row level security;
