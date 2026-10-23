@@ -21,22 +21,6 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0f0b1d;
-    --frame: #17122b;
-    --card: #1f1937;
-    --soft: #282045;
-    --line: #322a52;
-    --text: #efeaff;
-    --muted: #9c94bd;
-    --primary: #8b5cf6;
-    --primary-soft: #2d2454;
-    --shadow: 0 24px 60px -20px rgba(0, 0, 0, .6);
-    color-scheme: dark;
-  }
-}
-
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
